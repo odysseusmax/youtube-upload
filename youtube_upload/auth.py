@@ -1,5 +1,4 @@
 from apiclient.discovery import build
-from apiclient.http import MediaFileUpload
 from apiclient.errors import ResumableUploadError
 from oauth2client.client import OAuth2WebServerFlow, FlowExchangeError
 from oauth2client.file import Storage

@@ -1,4 +1,5 @@
 import httplib2, http
+from apiclient.http import MediaFileUpload
 
 class MaxRetryExceeded(Exception):
     pass
@@ -45,7 +46,7 @@ class Youtube:
         )
         self.request = self.youtube.videos().insert(body = body,
             media_body = MediaFileUpload(video,
-                chunksize = chunksize,
+                chunksize = self.chunksize,
                 resumable = True,
             ),
             part = ','.join(body.keys())
