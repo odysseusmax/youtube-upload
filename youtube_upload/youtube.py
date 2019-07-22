@@ -43,7 +43,7 @@ class Youtube:
                 privacyStatus=properties.get('privacyStatus')
             )
         )
-        self.request = youtube.videos().insert(body = body,
+        self.request = self.youtube.videos().insert(body = body,
             media_body = MediaFileUpload(video,
                 chunksize = chunksize,
                 resumable = True,
