@@ -6,8 +6,6 @@ from oauth2client.file import Storage
 from oauth2client import file, client, tools
 import httplib2, http, os
 
-G_DRIVE_TOKEN_FILE = "auth_token.txt"
-
 
 class AuthCodeInvalidError(Exception):
     pass
