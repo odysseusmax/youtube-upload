@@ -8,7 +8,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name='youtube-upload',
-    version='0.1',
+    version='0.1.1',
     description='Python wrapper for youtube data Api video upload',
     long_description="Python wrapper for youtube data Api video upload",
     url='https://github.com/odysseusmax/youtube-upload',
