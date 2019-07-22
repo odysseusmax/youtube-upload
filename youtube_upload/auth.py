@@ -18,10 +18,6 @@ class NoCredentialFile(Exception):
 
 class GoogleAuth:
 
-    CLIENT_ID = ''
-
-    CLIENT_SECRET = ''
-
     OAUTH_SCOPE = ['https://www.googleapis.com/auth/youtube.upload']
 
     REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob"
@@ -30,11 +26,11 @@ class GoogleAuth:
 
     API_VERSION = 'v3'
 
-    def __init__(self,):
+    def __init__(self, CLIENT_ID, CLIENT_SECRET):
 
         self.flow = OAuth2WebServerFlow(
-            self.CLIENT_ID,
-            self.CLIENT_SECRET,
+            CLIENT_ID,
+            CLIENT_SECRET,
             self.OAUTH_SCOPE,
             redirect_uri=self.REDIRECT_URI
         )
