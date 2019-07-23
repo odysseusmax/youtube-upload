@@ -1,5 +1,6 @@
 import httplib2, http, asyncio
 from apiclient.http import MediaFileUpload
+from apiclient.errors import HttpError
 
 import os
 
