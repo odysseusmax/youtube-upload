@@ -23,20 +23,22 @@ class Youtube:
 
     RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 
-    def __init__(self, auth, video, properties, chunksize=1024*1024):
+    def __init__(self, auth, chunksize=1024*1024):
         self.youtube = auth
         self.request = None
         self.chunksize = chunksize
         self.response = None
         self.error = None
         self.retry = 0
+
+
+
+
+    async def upload_video(self, video, properties, progress=None):
+        self.progress = progress
         self.video = video
         self.properties = properties
 
-
-
-    async def upload_video(self, progress=None):
-        self.progress = progress
         body = dict(
             snippet=dict(
                 title = self.properties.get('title'),
