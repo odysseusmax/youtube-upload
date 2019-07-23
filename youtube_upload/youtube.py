@@ -1,4 +1,4 @@
-import httplib2, http
+import httplib2, http, asyncio
 from apiclient.http import MediaFileUpload
 
 class MaxRetryExceeded(Exception):
@@ -21,51 +21,61 @@ class Youtube:
 
     RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 
-    def __init__(self, auth, chunksize=1024*1024):
+    def __init__(self, auth, video, properties chunksize=1024*1024):
         self.youtube = auth
         self.request = None
         self.chunksize = chunksize
         self.response = None
         self.error = None
         self.retry = 0
+        self.video = video
+        self.properties = properties
 
 
 
-    def upload_video(self, video, properties):
-
+    async def upload_video(self, progress=None, *arg):
+        self.progress = progress
+        self.arg = arg
         body = dict(
             snippet=dict(
-                title = properties.get('title'),
-                description = properties.get('description'),
-                tags = properties.get('tags'),
-                categoryId = properties.get('category')
+                title = self.properties.get('title'),
+                description = self.properties.get('description'),
+                tags = self.properties.get('tags'),
+                categoryId = self.properties.get('category')
             ),
             status=dict(
-                privacyStatus=properties.get('privacyStatus')
+                privacyStatus=self.properties.get('privacyStatus')
             )
         )
         self.request = self.youtube.videos().insert(body = body,
-            media_body = MediaFileUpload(video,
+            media_body = MediaFileUpload(self.video,
                 chunksize = self.chunksize,
                 resumable = True,
             ),
             part = ','.join(body.keys())
         )
         self.method = "insert"
-        self._resumable_upload()
+        await self._resumable_upload()
         return self.response
 
-    def _resumable_upload(self):
+    async def _resumable_upload(self):
+
+        cur = 0
+
         while self.response is None:
             try:
-                print("Uploading the file...")
+                #print("Uploading the file...")
                 status, self.response = self.request.next_chunk()
+                cur+=1
+
+                if(self.progress):
+                    await self.progress(cur*self.chunksize, os.path.getsize(self.video), *self.args)
 
                 if self.response is not None:
                     if self.method == 'insert' and 'id' in self.response:
-                        print_response(self.response)
+                        await print_response(self.response)
                     elif self.method != 'insert' or 'id' not in self.response:
-                        print_response(self.response)
+                        await print_response(self.response)
                     else:
                         raise UploadFailed("The file upload failed with an unexpected response:{}".format(self.response))
             except HttpError as e:
@@ -87,9 +97,9 @@ class Youtube:
                 sleep_seconds = random.random() * max_sleep
 
                 print("Sleeping {} seconds and then retrying...".format(sleep_seconds))
-                time.sleep(sleep_seconds)
+                asyncio.sleep(sleep_seconds)
 
 
-def print_response(response):
+async def print_response(response):
     for key, value in response.items():
         print(key, " : ", value, '\n\n')

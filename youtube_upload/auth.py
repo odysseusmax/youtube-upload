@@ -36,11 +36,11 @@ class GoogleAuth:
         )
         self.credentials = None
 
-    def GetAuthUrl(self):
+    async def GetAuthUrl(self):
 
         return self.flow.step1_get_authorize_url()
 
-    def Auth(self, code):
+    async def Auth(self, code):
         try:
             self.credentials = self.flow.step2_exchange(code)
         except FlowExchangeError as e:
@@ -48,7 +48,7 @@ class GoogleAuth:
         except:
             raise
 
-    def authorize(self):
+    async def authorize(self):
         try:
             if(self.credentials):
 
@@ -64,14 +64,14 @@ class GoogleAuth:
         except:
             raise
 
-    def LoadCredentialsFile(self, cred_file):
+    async def LoadCredentialsFile(self, cred_file):
         if(not os.path.isfile(cred_file)):
             raise NoCredentialFile('No credential file named {} is found.'.format(cred_file))
         storage = Storage(cred_file)
 
         self.credentials = storage.get()
 
-    def SaveCredentialsFile(self, cred_file):
+    async def SaveCredentialsFile(self, cred_file):
         storage = Storage(cred_file)
 
         storage.put(self.credentials)
