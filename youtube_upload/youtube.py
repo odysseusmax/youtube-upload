@@ -21,7 +21,7 @@ class Youtube:
 
     RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 
-    def __init__(self, auth, video, properties chunksize=1024*1024):
+    def __init__(self, auth, video, properties, chunksize=1024*1024):
         self.youtube = auth
         self.request = None
         self.chunksize = chunksize
