@@ -1,6 +1,8 @@
 import httplib2, http, asyncio
 from apiclient.http import MediaFileUpload
 
+import os
+
 class MaxRetryExceeded(Exception):
     pass
 class UploadFailed(Exception):
@@ -33,9 +35,8 @@ class Youtube:
 
 
 
-    async def upload_video(self, progress=None, *arg):
+    async def upload_video(self, progress=None):
         self.progress = progress
-        self.arg = arg
         body = dict(
             snippet=dict(
                 title = self.properties.get('title'),
@@ -69,7 +70,7 @@ class Youtube:
                 cur+=1
 
                 if(self.progress):
-                    await self.progress(cur*self.chunksize, os.path.getsize(self.video), *self.args)
+                    await self.progress(cur*self.chunksize, os.path.getsize(self.video))
 
                 if self.response is not None:
                     if self.method == 'insert' and 'id' in self.response:
