@@ -34,10 +34,10 @@ class Youtube:
 
 
 
-    async def upload_video(self, *params):
-        self.progress = params[2]
-        self.video = params[0]
-        self.properties = params[1]
+    async def upload_video(self, video, properties, progress=None):
+        self.progress = progress
+        self.video = video
+        self.properties = properties
 
         body = dict(
             snippet=dict(
