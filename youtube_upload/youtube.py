@@ -34,10 +34,10 @@ class Youtube:
 
 
 
-    async def upload_video(self, video, properties, progress=None):
-        self.progress = progress
-        self.video = video
-        self.properties = properties
+    async def upload_video(self, *params):
+        self.progress = params[2]
+        self.video = params[0]
+        self.properties = params[1]
 
         body = dict(
             snippet=dict(
@@ -67,7 +67,6 @@ class Youtube:
 
         while self.response is None:
             try:
-                #print("Uploading the file...")
                 status, self.response = self.request.next_chunk()
                 cur+=1
 
