@@ -51,36 +51,29 @@ class Youtube:
                 privacyStatus=self.properties.get('privacyStatus')
             )
         )
-        self.request = self.youtube.videos().insert(body = body,
-            media_body = MediaFileUpload(self.video,
-                chunksize = self.chunksize,
-                resumable = True,
-            ),
-            part = ','.join(body.keys())
+
+        media_body = MediaFileUpload(self.video, chunksize = self.chunksize,
+            resumable = True, mimetype="application/octet-stream"
         )
+
+
+        self.request = self.youtube.videos().insert(part = ','.join(body.keys()), body=body, media_body=media_body)
+
         self.method = "insert"
         await self._resumable_upload()
         return self.response
 
     async def _resumable_upload(self):
-
-        cur = 0
-
-        while self.response is None:
+        response = None
+        while response is None:
             try:
-                status, self.response = self.request.next_chunk()
-                cur+=1
-
-                if(self.progress):
-                    await self.progress(cur*self.chunksize, os.path.getsize(self.video))
-
-                if self.response is not None:
-                    if self.method == 'insert' and 'id' in self.response:
-                        await print_response(self.response)
-                    elif self.method != 'insert' or 'id' not in self.response:
-                        await print_response(self.response)
+                status, response = self.request.next_chunk()
+                if response is not None:
+                    if('id' in response):
+                        self.response = response
                     else:
-                        raise UploadFailed("The file upload failed with an unexpected response:{}".format(self.response))
+                        self.response = None
+                        raise UploadFailed("The file upload failed with an unexpected response:{}".format(response))
             except HttpError as e:
                 if e.resp.status in self.RETRIABLE_STATUS_CODES:
                     self.error = "A retriable HTTP error {} occurred:\n {}".format(e.resp.status, e.content)
@@ -101,6 +94,18 @@ class Youtube:
 
                 print("Sleeping {} seconds and then retrying...".format(sleep_seconds))
                 asyncio.sleep(sleep_seconds)
+
+
+while 1:
+        status, response = request.next_chunk()
+        if status and progress_callback:
+            progress_callback(status.total_size, status.resumable_progress)
+        if response:
+            if "id" in response:
+                return response['id']
+            else:
+                raise KeyError("Expected field 'id' not found in response")
+
 
 
 async def print_response(response):
