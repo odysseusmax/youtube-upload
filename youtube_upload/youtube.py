@@ -96,18 +96,6 @@ class Youtube:
                 asyncio.sleep(sleep_seconds)
 
 
-while 1:
-        status, response = request.next_chunk()
-        if status and progress_callback:
-            progress_callback(status.total_size, status.resumable_progress)
-        if response:
-            if "id" in response:
-                return response['id']
-            else:
-                raise KeyError("Expected field 'id' not found in response")
-
-
-
 async def print_response(response):
     for key, value in response.items():
         print(key, " : ", value, '\n\n')
