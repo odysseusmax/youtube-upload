@@ -3,6 +3,8 @@ from apiclient.http import MediaFileUpload
 from apiclient.errors import HttpError
 
 import os
+import time
+import asyncio
 
 class MaxRetryExceeded(Exception):
     pass
@@ -60,10 +62,14 @@ class Youtube:
         self.request = self.youtube.videos().insert(part = ','.join(body.keys()), body=body, media_body=media_body)
 
         self.method = "insert"
-        await self._resumable_upload()
+        
+        loop = asyncio.get_running_loop()
+        
+        await loop.run_in_executor(None, self._resumable_upload)
+        
         return self.response
 
-    async def _resumable_upload(self):
+    def _resumable_upload(self):
         response = None
         while response is None:
             try:
@@ -93,7 +99,7 @@ class Youtube:
                 sleep_seconds = random.random() * max_sleep
 
                 print("Sleeping {} seconds and then retrying...".format(sleep_seconds))
-                asyncio.sleep(sleep_seconds)
+                time.sleep(sleep_seconds)
 
 
 async def print_response(response):
